@@ -7,11 +7,11 @@ import java.util.Collection;
 public interface ClienteDAO {
     int insert(ClienteDTO clienteDTO);
 
-    int update(ClienteDTO clienteDTO, String primaryKey);
+    int update(ClienteDTO clienteDTO, String sigla, String numeroDocumento);
 
-    int delete(String primaryKey);
+    int delete(String sigla, String numeroDocumento);
 
     Collection<ClienteDTO> findAll();
 
-    ClienteDTO findPk(String primaryKey);
+    ClienteDTO findPk(String sigla, String numeroDocumento);
 }
