@@ -3,12 +3,15 @@ package co.edu.carlos.modelo.dao.postgres;
 import co.edu.carlos.modelo.dao.ClienteDAO;
 import co.edu.carlos.modelo.dao.util.ResourceManager;
 import co.edu.carlos.modelo.dto.ClienteDTO;
-import co.edu.carlos.modelo.dto.TipoDocumentoDTO;
+
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class PostgresClienteDAO implements ClienteDAO {
@@ -62,16 +65,69 @@ public class PostgresClienteDAO implements ClienteDAO {
 
     @Override
     public int delete(String primaryKey) {
-        return 0;
+        int registroBorrado = 0;
+        String sql = "DELETE FROM public.cliente WHERE sigla=?;";
+        PreparedStatement sentencia = null;
+        try {
+            connection = ResourceManager.getConnection();
+            sentencia = connection.prepareStatement(sql);
+            sentencia.setString(1, primaryKey);
+            registroBorrado = sentencia.executeUpdate();
+        } catch (SQLException e) {
+            logger.info(e.getMessage());
+        }
+        return registroBorrado;
     }
 
     @Override
     public Collection<ClienteDTO> findAll() {
-        return null;
+        List<ClienteDTO> listaClientes = new ArrayList();
+        String sql = "SELECT * FROM public.cliente";
+        PreparedStatement sentencia = null;
+        ResultSet resultado = null;
+        try {
+            connection = ResourceManager.getConnection();
+            sentencia = connection.prepareStatement(sql);
+            sentencia.executeQuery();
+
+            while (resultado.next()) {
+                ClienteDTO clienteDTO = new ClienteDTO();
+                clienteDTO.setSigla(resultado.getString("sigla"));
+                clienteDTO.setNumeroDocumento(resultado.getString("numero_documento"));
+                clienteDTO.setNombres(resultado.getString("nombres"));
+                clienteDTO.setApellidos(resultado.getString("apellidos"));
+                listaClientes.add(clienteDTO);
+            }
+        } catch (SQLException e) {
+            logger.info(e.getMessage());
+        } finally {
+            ResourceManager.close(resultado);
+            ResourceManager.close(sentencia);
+            ResourceManager.close(connection);
+        }
+        return listaClientes;
     }
 
     @Override
     public ClienteDTO findPk(String primaryKey) {
-        return null;
+        ClienteDTO clienteDTO = new ClienteDTO();
+        String sql = "SELECT * FROM public.cliente WHERE sigla=?;";
+        PreparedStatement sentencia = null;
+        ResultSet resultado = null;
+        try {
+            connection = ResourceManager.getConnection();
+            sentencia = connection.prepareStatement(sql);
+            sentencia.executeQuery();
+
+            while (resultado.next()) {
+                clienteDTO.setSigla(resultado.getString("sigla"));
+                clienteDTO.setNumeroDocumento(resultado.getString("numero_documento"));
+                clienteDTO.setNombres(resultado.getString("nombres"));
+                clienteDTO.setApellidos(resultado.getString("apellidos"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return clienteDTO;
     }
 }
