@@ -42,5 +42,5 @@ public class ClienteDTO implements Serializable {
     public void setApellidos(String apellidos) {
         this.apellidos = apellidos;
     }
-    
+
 }
