@@ -31,7 +31,7 @@ class PostgresTipoDocumentoDAOTest {
 
         TipoDocumentoDAOFactory fabrica = new PostgresTipoDocumentoDAOFactory();
         TipoDocumentoDAO daoTipoDocumento = fabrica.create();
-        assertEquals(daoTipoDocumento.update(tipoDocumentoDTO, "CC"), 1);
+        assertEquals(daoTipoDocumento.update(tipoDocumentoDTO, "CE"), 1);
     }
 
     @Test
