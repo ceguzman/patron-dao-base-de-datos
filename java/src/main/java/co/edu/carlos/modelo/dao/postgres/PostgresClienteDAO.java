@@ -42,9 +42,10 @@ public class PostgresClienteDAO implements ClienteDAO {
     }
 
     @Override
-    public int update(ClienteDTO clienteDTO, String primaryKey) {
+    public int update(ClienteDTO clienteDTO, String sigla, String numeroDocumento) {
         int datosActualizados = 0;
-        String sql = "UPDATE public.cliente SET sigla=?, numero_documento=?, nombres=?, apellidos=?  WHERE sigla=?;";
+        String sql = "UPDATE public.cliente SET sigla=?, numero_documento=?, nombres=?, apellidos=?  " +
+                "WHERE sigla=? AND numero_documento=?;";
         PreparedStatement sentencia = null;
         try {
             connection = ResourceManager.getConnection();
@@ -53,6 +54,8 @@ public class PostgresClienteDAO implements ClienteDAO {
             sentencia.setString(2, clienteDTO.getNumeroDocumento());
             sentencia.setString(3, clienteDTO.getNombres());
             sentencia.setString(4, clienteDTO.getApellidos());
+            sentencia.setString(5, sigla);
+            sentencia.setString(6, numeroDocumento);
             datosActualizados = sentencia.executeUpdate();
         } catch (SQLException e) {
             logger.info(e.getMessage());
@@ -64,14 +67,15 @@ public class PostgresClienteDAO implements ClienteDAO {
     }
 
     @Override
-    public int delete(String primaryKey) {
+    public int delete(String sigla, String numeroDocumento) {
         int registroBorrado = 0;
-        String sql = "DELETE FROM public.cliente WHERE sigla=?;";
+        String sql = "DELETE FROM public.cliente WHERE sigla=? and numero_documento=?;";
         PreparedStatement sentencia = null;
         try {
             connection = ResourceManager.getConnection();
             sentencia = connection.prepareStatement(sql);
-            sentencia.setString(1, primaryKey);
+            sentencia.setString(1, sigla);
+            sentencia.setString(2, numeroDocumento);
             registroBorrado = sentencia.executeUpdate();
         } catch (SQLException e) {
             logger.info(e.getMessage());
@@ -82,13 +86,13 @@ public class PostgresClienteDAO implements ClienteDAO {
     @Override
     public Collection<ClienteDTO> findAll() {
         List<ClienteDTO> listaClientes = new ArrayList();
-        String sql = "SELECT * FROM public.cliente";
+        String sql = "SELECT * FROM public.cliente;";
         PreparedStatement sentencia = null;
         ResultSet resultado = null;
         try {
             connection = ResourceManager.getConnection();
             sentencia = connection.prepareStatement(sql);
-            sentencia.executeQuery();
+            resultado = sentencia.executeQuery();
 
             while (resultado.next()) {
                 ClienteDTO clienteDTO = new ClienteDTO();
@@ -109,15 +113,17 @@ public class PostgresClienteDAO implements ClienteDAO {
     }
 
     @Override
-    public ClienteDTO findPk(String primaryKey) {
+    public ClienteDTO findPk(String sigla, String numeroDocumento) {
         ClienteDTO clienteDTO = new ClienteDTO();
-        String sql = "SELECT * FROM public.cliente WHERE sigla=?;";
+        String sql = "SELECT * FROM public.cliente WHERE sigla=? and numero_documento=?;";
         PreparedStatement sentencia = null;
         ResultSet resultado = null;
         try {
             connection = ResourceManager.getConnection();
             sentencia = connection.prepareStatement(sql);
-            sentencia.executeQuery();
+            sentencia.setString(1, sigla);
+            sentencia.setString(2, numeroDocumento);
+            resultado = sentencia.executeQuery();
 
             while (resultado.next()) {
                 clienteDTO.setSigla(resultado.getString("sigla"));
@@ -126,7 +132,7 @@ public class PostgresClienteDAO implements ClienteDAO {
                 clienteDTO.setApellidos(resultado.getString("apellidos"));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.info(e.getMessage());
         }
         return clienteDTO;
     }
